@@ -77,7 +77,7 @@ function TrackMenu({ track, playlistId }: { track: Track; playlistId?: string })
   const isFav = useLibrary((s) => s.favorites.some((t) => t.key === track.key));
   const toggleFavorite = useLibrary((s) => s.toggleFavorite);
   const removeFromPlaylist = useLibrary((s) => s.removeFromPlaylist);
-  const sourceName = track.source === 'itunes' ? 'Apple Music' : 'Audius';
+  const sourceName = 'Audius';
 
   return (
     <>

@@ -5,7 +5,6 @@ import { colors } from '../theme';
 import type { Track } from '../types';
 import { fmtTime } from '../util';
 import { Cover } from './Cover';
-import { Badge } from './ui';
 
 interface Props {
   track: Track;
@@ -31,7 +30,6 @@ export const TrackRow = memo(function TrackRow({ track, index, active, playing, 
           {track.title}
         </Text>
         <View style={styles.sub}>
-          {track.preview ? <Badge text="30 с" /> : null}
           <Text numberOfLines={1} style={styles.artist}>
             {track.artist}
           </Text>

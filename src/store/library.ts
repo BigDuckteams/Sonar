@@ -140,8 +140,21 @@ export const useLibrary = create<LibraryState>()(
     }),
     {
       name: 'sonar-library',
-      version: 1,
+      version: 2,
       storage: createJSONStorage(() => AsyncStorage),
+      // v2 dropped the 30-second preview source: forget anything saved from it.
+      migrate: (persisted, version) => {
+        const s = persisted as LibraryState;
+        if (version >= 2) return s;
+        const keep = (t: Track) => !t.key.startsWith('itunes:');
+        return {
+          ...s,
+          favorites: (s.favorites ?? []).filter(keep),
+          playlists: (s.playlists ?? []).map((p) => ({ ...p, tracks: p.tracks.filter(keep) })),
+          history: (s.history ?? []).filter(keep),
+          stats: Object.fromEntries(Object.entries(s.stats ?? {}).filter(([k]) => !k.startsWith('itunes:'))),
+        };
+      },
     },
   ),
 );

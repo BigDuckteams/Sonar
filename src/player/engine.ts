@@ -11,7 +11,7 @@ import type { Source, Track } from '../types';
  * background playback all work without JS. Everything here just feeds it.
  */
 
-const SOURCES: Source[] = ['audius', 'itunes', 'device'];
+const SOURCES: Source[] = ['audius', 'device'];
 
 export function trackToItem(t: Track): MediaItem {
   return {

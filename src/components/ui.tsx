@@ -113,14 +113,6 @@ export function SectionTitle(props: { title: string; action?: string; onAction?:
   );
 }
 
-export function Badge({ text }: { text: string }) {
-  return (
-    <View style={styles.badge}>
-      <Text style={styles.badgeText}>{text}</Text>
-    </View>
-  );
-}
-
 export function EmptyState(props: {
   icon: IconName;
   title: string;
@@ -188,15 +180,6 @@ const styles = StyleSheet.create({
   sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 24, marginBottom: 10 },
   sectionTitle: { ...type.h2, color: colors.text },
   sectionAction: { color: colors.accent, fontSize: 14, fontWeight: '600' },
-  badge: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.pill,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    marginRight: 6,
-  },
-  badgeText: { color: colors.muted, fontSize: 11, fontWeight: '700' },
   empty: { alignItems: 'center', gap: 10, paddingVertical: 48, paddingHorizontal: 32 },
   emptyTitle: { color: colors.text, fontSize: 17, fontWeight: '700', textAlign: 'center' },
   emptyText: { color: colors.muted, fontSize: 14, textAlign: 'center', marginBottom: 6 },

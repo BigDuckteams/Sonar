@@ -1,4 +1,4 @@
-export type Source = 'audius' | 'itunes' | 'device';
+export type Source = 'audius' | 'device';
 
 export interface Track {
   /** Stable unique id: `<source>:<id>` */
@@ -12,8 +12,6 @@ export interface Track {
   duration?: number;
   /** Playable URL (https, or content:// for files on the phone). */
   url: string;
-  /** True when only a short preview is available (not the full track). */
-  preview?: boolean;
   /** Public page of the track at its source, if any. */
   link?: string;
   genre?: string;
@@ -21,6 +19,8 @@ export interface Track {
   folder?: string;
   /** Device tracks: unix seconds when the file was added. */
   addedAt?: number;
+  /** Device tracks: track number from the embedded tags, when the file has one. */
+  trackNo?: number;
 }
 
 export interface Playlist {
@@ -43,6 +43,8 @@ export type TabParamList = {
   Home: undefined;
   Search: undefined;
   Library: { segment?: 'device' | 'favorites' | 'playlists' } | undefined;
+  /** `nonce` makes a repeated search for the same words still reload the page. */
+  YouTube: { query?: string; nonce?: number } | undefined;
 };
 
 export type RootStackParamList = {

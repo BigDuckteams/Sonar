@@ -19,9 +19,10 @@ npx eas-cli@latest build --platform android --profile preview   # APK in the clo
 - `index.ts` — entry: registers the playback session, then the root component.
 - `App.tsx` — React Navigation (native stack over bottom tabs); the mini player lives in the custom tab bar.
 - `src/player/` — `engine.ts` (queue/playback helpers over `@rntp/player`), `session.ts` (playback-critical listeners), `hooks.ts`.
-- `src/sources/` — `audius.ts` (full tracks), `itunes.ts` (30 s previews), `device.ts` (audio files on the phone via `expo-media-library`).
+- `src/sources/` — `audius.ts` (full tracks), `device.ts` (audio files on the phone via `expo-media-library`).
 - `src/store/` — zustand: `library.ts` (favorites, playlists, history, settings; persisted in AsyncStorage), `device.ts` (scan state).
 - `src/screens/`, `src/components/`, `src/ui/` (sheets, prompt, toast hosts mounted in `App.tsx`).
+- `src/screens/YouTubeScreen.tsx` — the official m.youtube.com in `react-native-webview` (a tab); the search card hands it a query.
 - `scripts/make-icons.js` — regenerates the icons in `assets/`.
 
 ## Rules
@@ -30,6 +31,7 @@ npx eas-cli@latest build --platform android --profile preview   # APK in the clo
 - The native player owns the queue. Next/previous, lock-screen and notification controls run natively; do not duplicate queue state in JS. Tracks travel in `MediaItem.extras.track`.
 - `src/player/session.ts` and everything it imports must stay free of UI imports (it runs when the UI is gone).
 - Data from the network is untrusted: render it as text only.
+- Music only from sources that allow it. The YouTube tab must stay the official site in a visible WebView: it pauses when the app leaves the foreground, and there is no background play, audio extraction, downloading or unofficial search.
 - `@rntp/player` is native code: Expo Go cannot run it, a development/preview build is required. `shaka-player` is a dev dependency only for the web preview.
 - Do not edit generated `ios/` and `android/` folders by hand; configure native behaviour in `app.json` and config plugins.
 - `@rntp/player` is free for personal non-commercial use only; publishing the app needs its commercial license.

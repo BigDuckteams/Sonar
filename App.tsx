@@ -16,6 +16,7 @@ import { PlayerScreen } from './src/screens/PlayerScreen';
 import { QueueScreen } from './src/screens/QueueScreen';
 import { SearchScreen } from './src/screens/SearchScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
+import { YouTubeScreen } from './src/screens/YouTubeScreen';
 import { useDevice } from './src/store/device';
 import { useLibrary } from './src/store/library';
 import { colors } from './src/theme';
@@ -44,6 +45,7 @@ const ICONS: Record<keyof TabParamList, IconPair> = {
   Home: ['home', 'home-outline'],
   Search: ['search', 'search-outline'],
   Library: ['library', 'library-outline'],
+  YouTube: ['logo-youtube', 'logo-youtube'],
 };
 
 function Tabs() {
@@ -69,6 +71,7 @@ function Tabs() {
       <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Главная' }} />
       <Tab.Screen name="Search" component={SearchScreen} options={{ title: 'Поиск' }} />
       <Tab.Screen name="Library" component={LibraryScreen} options={{ title: 'Медиатека' }} />
+      <Tab.Screen name="YouTube" component={YouTubeScreen} options={{ title: 'YouTube' }} />
     </Tab.Navigator>
   );
 }

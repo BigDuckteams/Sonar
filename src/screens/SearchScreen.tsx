@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,10 +16,10 @@ import { Screen } from '../components/Screen';
 import { TrackRow } from '../components/TrackRow';
 import { Button, Chip, EmptyState, Header, SectionTitle } from '../components/ui';
 import { usePaged } from '../hooks/usePaged';
+import { useTabNav } from '../nav';
 import { playTracks } from '../player/engine';
 import { useCurrentKey } from '../player/hooks';
 import * as Audius from '../sources/audius';
-import * as ITunes from '../sources/itunes';
 import { useDevice } from '../store/device';
 import { useLibrary } from '../store/library';
 import { colors, radius } from '../theme';
@@ -26,16 +27,13 @@ import type { Page, Track } from '../types';
 import { filterTracks } from '../util';
 import { openTrackMenu } from '../ui/sheets';
 
-type Filter = 'all' | 'device' | 'audius' | 'itunes';
+type Filter = 'all' | 'device' | 'audius';
 
 const EMPTY: Page = { items: [], more: false, next: 0 };
-const IDEAS = ['lofi', 'jazz', 'ambient', 'house', 'Daft Punk', 'Imagine Dragons', 'Кино', 'Мумий Тролль'];
-const PREVIEW_NOTE =
-  'Полные версии коммерческих песен бесплатно недоступны — здесь только 30-секундные превью.';
+const IDEAS = ['lofi', 'chill', 'piano', 'jazz', 'ambient', 'house', 'techno', 'trap'];
 
 interface SectionProps {
   title: string;
-  note?: string;
   tracks: Track[];
   loading?: boolean;
   error?: boolean;
@@ -60,7 +58,6 @@ function Section(props: SectionProps) {
           action={limit && tracks.length > limit ? 'Показать все' : undefined}
           onAction={props.onAll}
         />
-        {props.note ? <Text style={styles.note}>{props.note}</Text> : null}
       </View>
       {shown.map((t, i) => (
         <TrackRow
@@ -75,6 +72,41 @@ function Section(props: SectionProps) {
       ))}
       {props.loading ? <ActivityIndicator color={colors.accent} style={{ margin: 16 }} /> : null}
       {props.error ? <Text style={[styles.note, styles.pad]}>Источник сейчас недоступен.</Text> : null}
+    </View>
+  );
+}
+
+/**
+ * Songs of big labels are not given away in full by anyone for free, so instead of
+ * faking it we point to the official services where they are available.
+ */
+function ElsewhereCard({ query }: { query: string }) {
+  const tab = useTabNav();
+  return (
+    <View style={[styles.card, styles.pad]}>
+      <Text style={styles.cardTitle}>Ищете конкретного исполнителя?</Text>
+      <Text style={styles.note}>
+        Песни крупных лейблов целиком есть на официальном YouTube — откройте «{query}» прямо в Sonar
+        (играет, пока приложение открыто). Скачанные файлы этих песен найдутся здесь, в разделе «На
+        телефоне».
+      </Text>
+      <View style={styles.cardButtons}>
+        <View style={{ flex: 1 }}>
+          <Button
+            label="YouTube"
+            icon="logo-youtube"
+            onPress={() => tab.navigate('YouTube', { query, nonce: Date.now() })}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Button
+            label="Яндекс Музыка"
+            icon="open-outline"
+            kind="ghost"
+            onPress={() => void Linking.openURL(`https://music.yandex.ru/search?text=${encodeURIComponent(query)}`)}
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -102,10 +134,6 @@ export function SearchScreen() {
     (offset, signal) => (q ? Audius.search(q, { offset, limit: 20 }, signal) : Promise.resolve(EMPTY)),
     [q],
   );
-  const itunes = usePaged(
-    (_, signal) => (q ? ITunes.search(q, 25, signal) : Promise.resolve(EMPTY)),
-    [q],
-  );
 
   const play = useCallback(
     (tracks: Track[], index: number) => {
@@ -117,13 +145,7 @@ export function SearchScreen() {
   );
 
   const all = filter === 'all';
-  const nothing =
-    !!q &&
-    !audius.loading &&
-    !itunes.loading &&
-    deviceHits.length === 0 &&
-    audius.items.length === 0 &&
-    itunes.items.length === 0;
+  const nothing = !!q && !audius.loading && deviceHits.length === 0 && audius.items.length === 0;
 
   return (
     <Screen>
@@ -163,7 +185,6 @@ export function SearchScreen() {
           <Chip label="Всё" selected={all} onPress={() => setFilter('all')} />
           <Chip label="На телефоне" selected={filter === 'device'} onPress={() => setFilter('device')} />
           <Chip label="Полные треки" selected={filter === 'audius'} onPress={() => setFilter('audius')} />
-          <Chip label="Превью хитов" selected={filter === 'itunes'} onPress={() => setFilter('itunes')} />
         </ScrollView>
       ) : null}
 
@@ -187,8 +208,10 @@ export function SearchScreen() {
               ))}
             </View>
             <Text style={[styles.note, { marginTop: 20 }]}>
-              Sonar ищет сразу в трёх местах: в музыке на вашем телефоне, среди полных треков Audius и
-              среди превью хитов. {PREVIEW_NOTE}
+              Sonar ищет в музыке на вашем телефоне и среди полных треков независимых артистов Audius.
+              Песни крупных лейблов бесплатно целиком никто не отдаёт: скачанные файлы слушайте в
+              «Медиатеке → На телефоне», а остальное под результатами поиска можно открыть у официальных
+              сервисов.
             </Text>
           </View>
         ) : (
@@ -213,18 +236,6 @@ export function SearchScreen() {
                 onPlay={play}
               />
             ) : null}
-            {all || filter === 'itunes' ? (
-              <Section
-                title="Хиты · превью 30 секунд"
-                note={PREVIEW_NOTE}
-                tracks={itunes.items}
-                loading={itunes.loading}
-                error={itunes.error}
-                limit={all ? 5 : undefined}
-                onAll={() => setFilter('itunes')}
-                onPlay={play}
-              />
-            ) : null}
             {filter === 'audius' && audius.more && !audius.loading ? (
               <View style={styles.pad}>
                 <Button label="Показать ещё" kind="ghost" onPress={audius.loadMore} />
@@ -242,10 +253,11 @@ export function SearchScreen() {
             {nothing ? (
               <EmptyState
                 icon="search-outline"
-                title="Ничего не найдено"
+                title="Полных треков не найдено"
                 text="Проверьте написание или попробуйте латиницей."
               />
             ) : null}
+            {!audius.loading ? <ElsewhereCard query={q} /> : null}
           </>
         )}
       </ScrollView>
@@ -267,5 +279,11 @@ const styles = StyleSheet.create({
   input: { flex: 1, color: colors.text, fontSize: 16, paddingVertical: 0 },
   chips: { paddingHorizontal: 16, gap: 8, paddingVertical: 12 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  note: { color: colors.muted, fontSize: 13 },
+  note: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  card: {
+    marginTop: 24,
+    gap: 10,
+  },
+  cardTitle: { color: colors.text, fontSize: 16, fontWeight: '700' },
+  cardButtons: { flexDirection: 'row', gap: 10, marginTop: 4 },
 });

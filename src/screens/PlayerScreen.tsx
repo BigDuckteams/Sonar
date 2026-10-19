@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import { Cover } from '../components/Cover';
 import { Screen } from '../components/Screen';
-import { Badge, EmptyState, IconButton } from '../components/ui';
+import { EmptyState, IconButton } from '../components/ui';
 import { useRootNav } from '../nav';
 import { setRepeat, setShuffle } from '../player/engine';
 import { useCurrentTrack } from '../player/hooks';
@@ -92,8 +92,7 @@ export function PlayerScreen() {
     else TrackPlayer.skipToPrevious();
   };
 
-  const sourceLabel =
-    track.source === 'device' ? 'С телефона' : track.source === 'audius' ? 'Audius' : 'Apple · превью';
+  const sourceLabel = track.source === 'device' ? 'С телефона' : 'Audius';
 
   return (
     <Screen>
@@ -114,7 +113,6 @@ export function PlayerScreen() {
               {track.title}
             </Text>
             <View style={styles.artistRow}>
-              {track.preview ? <Badge text="ПРЕВЬЮ 30 С" /> : null}
               <Text style={styles.artist} numberOfLines={1}>
                 {track.artist}
               </Text>
@@ -210,13 +208,6 @@ export function PlayerScreen() {
             </>
           ) : null}
         </ScrollView>
-
-        {track.preview ? (
-          <Text style={styles.previewNote}>
-            Это 30-секундное превью: полные версии коммерческих песен бесплатно недоступны. Полные треки
-            независимых артистов ищите в разделе «В тренде».
-          </Text>
-        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -257,5 +248,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface2,
   },
   chipText: { color: colors.text, fontSize: 14, fontWeight: '600' },
-  previewNote: { color: colors.muted, fontSize: 13, textAlign: 'center' },
 });
