@@ -1,0 +1,9 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@rntp/player": ["./node_modules/@rntp/player/lib/typescript/src/index.d.ts"]
+    }
+  }
+}

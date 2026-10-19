@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Sonar",
+    "slug": "sonar",
+    "scheme": "sonar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#07090d",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.sonar.player",
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
+    },
+    "android": {
+      "package": "app.sonar.player",
+      "adaptiveIcon": {
+        "backgroundColor": "#07090d",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["android.permission.POST_NOTIFICATIONS"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-image",
+      [
+        "expo-media-library",
+        {
+          "photosPermission": false,
+          "savePhotosPermission": false,
+          "granularPermissions": ["audio"]
+        }
+      ]
+    ]
+  }
+}
